@@ -17,11 +17,10 @@
 </head>
 <body>
 
-  <!-- Navbar Header dengan Logo Gereja -->
+  <!-- Header / Navbar -->
   <nav class="navbar navbar-custom px-3 py-2">
     <div class="container-fluid d-flex align-items-center">
-      <!-- Ubah src logo dengan file URL logo GPIB yang valid -->
-      <img src="logo_gpib.png" alt="GPIB Logo" width="45" class="me-3">
+      <img src="logo_gpib.png" alt="GPIB Logo" width="45" class="me-3" onerror="this.style.display='none'">
       <div>
         <h6 class="m-0 fw-bold text-white">GPIB JEMAAT BETLEHEM SUNGAI AMBAWANG</h6>
         <small class="text-gold">Sistem Informasi Manajemen Aset Gereja (BSA)</small>
@@ -31,40 +30,10 @@
 
   <!-- Container Utama -->
   <div class="container mt-4 mb-5">
-    
-    <!-- Dashboard Ringkasan -->
-    <div class="row g-3 mb-4">
-      <div class="col-6 col-md-3">
-        <div class="card card-custom p-3 text-center">
-          <small class="text-muted">Total Aset</small>
-          <h3 class="text-gold m-0" id="totalAset">0</h3>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="card card-custom p-3 text-center">
-          <small class="text-muted">Kondisi Baik</small>
-          <h3 class="text-success m-0" id="baikAset">0</h3>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="card card-custom p-3 text-center">
-          <small class="text-muted">Perlu Servis</small>
-          <h3 class="text-warning m-0" id="servisAset">0</h3>
-        </div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="card card-custom p-3 text-center">
-          <small class="text-muted">Rusak Berat</small>
-          <h3 class="text-danger m-0" id="rusakAset">0</h3>
-        </div>
-      </div>
-    </div>
-
-    <!-- Form Input Aset (Optimasi HP) -->
     <div class="card card-custom p-4">
-      <h5 class="text-gold mb-3"><i class="bi bi-plus-circle"></i> Input Inventaris Aset Baru</h5>
+      <h5 class="text-gold mb-3">Input Inventaris Aset Baru</h5>
+      
       <form id="formAset">
-        
         <div class="mb-3">
           <label class="form-label">Nama Barang</label>
           <input type="text" class="form-control bg-dark text-white border-secondary" id="namaBarang" placeholder="Contoh: Mic Wireless Aslley" required>
@@ -125,11 +94,69 @@
           <small class="text-muted">Bisa langsung ambil foto lewat kamera HP.</small>
         </div>
 
-        <button type="submit" class="btn btn-gold w-100 py-2 mt-2">Simpan & Generate Kode BSA</button>
+        <button type="submit" class="btn btn-gold w-100 py-2 mt-2" id="btnSubmit">Simpan & Generate Kode BSA</button>
       </form>
     </div>
-
   </div>
 
+  <!-- Script Penyamung ke Apps Script -->
+  <script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxdLg1ZZqb0EUuuablJbCp21K5GjkpRnPS7A1xR6xi1a46WCFWoVjpG8DPk3X-1pNwGbg/exec";
+
+    document.getElementById('formAset').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const btnSubmit = document.getElementById('btnSubmit');
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = "Sedang Menyimpan Data & Upload Foto...";
+
+      const fileInput = document.getElementById('fotoBarang');
+      const file = fileInput.files[0];
+
+      if (!file) {
+        alert("Harap pilih foto barang terlebih dahulu!");
+        btnSubmit.disabled = false;
+        btnSubmit.innerText = "Simpan & Generate Kode BSA";
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const base64Data = evt.target.result.split(',')[1];
+        
+        const payload = {
+          namaBarang: document.getElementById('namaBarang').value,
+          lokasi: document.getElementById('lokasi').value,
+          kategori: document.getElementById('kategori').value,
+          tempat: document.getElementById('tempat').value,
+          tahun: document.getElementById('tahun').value,
+          kondisi: document.getElementById('kondisi').value,
+          fileName: file.name,
+          fileType: file.type,
+          fileData: base64Data
+        };
+
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(() => {
+          alert("BERHASIL! Data aset dan foto telah tersimpan ke Google Sheets & Google Drive.");
+          document.getElementById('formAset').reset();
+          btnSubmit.disabled = false;
+          btnSubmit.innerText = "Simpan & Generate Kode BSA";
+        })
+        .catch(error => {
+          alert("Gagal menyimpan data: " + error);
+          btnSubmit.disabled = false;
+          btnSubmit.innerText = "Simpan & Generate Kode BSA";
+        });
+      };
+
+      reader.readAsDataURL(file);
+    });
+  </script>
 </body>
 </html>
