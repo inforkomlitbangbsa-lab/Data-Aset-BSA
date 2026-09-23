@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIMAG - GPIB Betlehem Sungai Ambawang</title>
-  <!-- Bootstrap 5, QR Code JS, dan html2canvas (untuk simpan gambar) -->
+  <!-- Bootstrap 5, QR Code JS, & html2canvas -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -55,13 +55,13 @@
       <form id="formAset">
         <div class="mb-3">
           <label class="form-label">Nama Barang</label>
-          <input type="text" class="form-control bg-dark text-white border-secondary" name="namaBarang" id="namaBarang" placeholder="Contoh: Mic Wireless Aslley" required>
+          <input type="text" class="form-control bg-dark text-white border-secondary" id="namaBarang" placeholder="Contoh: Mic Wireless Aslley" required>
         </div>
 
         <div class="row g-2 mb-3">
           <div class="col-6">
             <label class="form-label">Lokasi Pos</label>
-            <select class="form-select bg-dark text-white border-secondary" name="lokasi" id="lokasi" required>
+            <select class="form-select bg-dark text-white border-secondary" id="lokasi" required>
               <option value="IND">IND - Induk</option>
               <option value="DAP">DAP - Dango Anugerah Penapat</option>
               <option value="MIS">MIS - Menara Iman Siak</option>
@@ -73,7 +73,7 @@
           </div>
           <div class="col-6">
             <label class="form-label">Kategori</label>
-            <select class="form-select bg-dark text-white border-secondary" name="kategori" id="kategori" required>
+            <select class="form-select bg-dark text-white border-secondary" id="kategori" required>
               <option value="HBG">HBG - Harta Bergerak</option>
               <option value="HTB">HTB - Harta Tidak Bergerak</option>
               <option value="HKI">HKI - Tak Berwujud / HKI</option>
@@ -84,7 +84,7 @@
         <div class="row g-2 mb-3">
           <div class="col-6">
             <label class="form-label">Ruangan/Tempat</label>
-            <select class="form-select bg-dark text-white border-secondary" name="tempat" id="tempat" required>
+            <select class="form-select bg-dark text-white border-secondary" id="tempat" required>
               <option value="GRJ">GRJ - Gedung Gereja</option>
               <option value="KST">KST - Konsistori</option>
               <option value="PST">PST - Pastori</option>
@@ -94,13 +94,13 @@
           </div>
           <div class="col-6">
             <label class="form-label">Tahun Perolehan</label>
-            <input type="number" class="form-control bg-dark text-white border-secondary" name="tahun" id="tahun" value="2026" required>
+            <input type="number" class="form-control bg-dark text-white border-secondary" id="tahun" value="2026" required>
           </div>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Kondisi Barang</label>
-          <select class="form-select bg-dark text-white border-secondary" name="kondisi" id="kondisi" required>
+          <select class="form-select bg-dark text-white border-secondary" id="kondisi" required>
             <option value="Baik">Baik (Berfungsi 100%)</option>
             <option value="Perlu Perbaikan">Perlu Perbaikan / Servis</option>
             <option value="Rusak Berat">Rusak Berat</option>
@@ -109,7 +109,7 @@
 
         <div class="mb-3">
           <label class="form-label">Upload Foto Barang (Max 50MB)</label>
-          <input type="file" class="form-control bg-dark text-white border-secondary" name="fotoBarang" id="fotoBarang" accept="image/*" capture="environment" required>
+          <input type="file" class="form-control bg-dark text-white border-secondary" id="fotoBarang" accept="image/*" capture="environment" required>
           <small class="text-muted">Bisa langsung ambil foto lewat kamera HP.</small>
         </div>
 
@@ -160,41 +160,58 @@
 
       const btnSubmit = document.getElementById('btnSubmit');
       btnSubmit.disabled = true;
-      btnSubmit.innerText = "Sedang Menyimpan Data & Generate QR...";
+      btnSubmit.innerText = "Sedang Menyimpan Data & Upload Foto...";
 
-      const formData = new FormData(this);
+      const fileInput = document.getElementById('fotoBarang');
+      const file = fileInput.files[0];
 
-      const lokasi = document.getElementById('lokasi').value;
-      const kategori = document.getElementById('kategori').value;
-      const tempat = document.getElementById('tempat').value;
-      const tahun = document.getElementById('tahun').value;
-      const nama = document.getElementById('namaBarang').value;
-
-      fetch(SCRIPT_URL, {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.json())
-      .then(data => {
+      if (!file) {
+        alert("Harap pilih foto barang terlebih dahulu!");
         btnSubmit.disabled = false;
         btnSubmit.innerText = "Simpan & Generate Kode BSA";
+        return;
+      }
 
-        if (data.result === "success") {
-          tampilkanQRCode(data.kode, data.nama);
-        } else {
-          tampilkanQRCode(`BSA-${lokasi}-${kategori}-${tempat}-${tahun}-NEW`, nama);
-        }
-        document.getElementById('formAset').reset();
-      })
-      .catch(error => {
-        btnSubmit.disabled = false;
-        btnSubmit.innerText = "Simpan & Generate Kode BSA";
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const base64Data = evt.target.result.split(',')[1];
         
-        // Memastikan QR Modal TETAP TAMPIL meskipun terjadi batasan CORS
-        const estKode = `BSA-${lokasi}-${kategori}-${tempat}-${tahun}-SAVED`;
-        tampilkanQRCode(estKode, nama);
-        document.getElementById('formAset').reset();
-      });
+        const payload = {
+          namaBarang: document.getElementById('namaBarang').value,
+          lokasi: document.getElementById('lokasi').value,
+          kategori: document.getElementById('kategori').value,
+          tempat: document.getElementById('tempat').value,
+          tahun: document.getElementById('tahun').value,
+          kondisi: document.getElementById('kondisi').value,
+          fileName: file.name,
+          fileType: file.type,
+          fileData: base64Data
+        };
+
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(() => {
+          btnSubmit.disabled = false;
+          btnSubmit.innerText = "Simpan & Generate Kode BSA";
+
+          // Buat estimasi kode BSA sesuai urutan lokasi di Sheets
+          const estKode = `BSA-${payload.lokasi}-${payload.kategori}-${payload.tempat}-${payload.tahun}-NEW`;
+          
+          tampilkanQRCode(estKode, payload.namaBarang);
+          document.getElementById('formAset').reset();
+        })
+        .catch(error => {
+          btnSubmit.disabled = false;
+          btnSubmit.innerText = "Simpan & Generate Kode BSA";
+          alert("Gagal mengirim data: " + error);
+        });
+      };
+
+      reader.readAsDataURL(file);
     });
 
     function tampilkanQRCode(kode, nama) {
@@ -210,7 +227,6 @@
       qrModal.show();
     }
 
-    // Fungsi menyimpan stiker sebagai gambar PNG ke HP/Laptop
     function unduhStiker() {
       const card = document.getElementById("stickerCard");
       const namaFile = document.getElementById("lblKodeBSA").innerText + ".png";
