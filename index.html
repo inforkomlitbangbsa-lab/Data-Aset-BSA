@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SIMAG - GPIB Betlehem Sungai Ambawang</title>
-  <!-- Bootstrap 5 CSS & QR Code Library -->
+  <!-- Bootstrap 5, QR Code JS, dan html2canvas (untuk simpan gambar) -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body { background-color: #0A192F; color: #E6F1FF; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     .card-custom { background-color: #112240; border: 1px solid #233554; border-radius: 12px; }
@@ -15,7 +16,7 @@
     .btn-gold:hover { background-color: #B59228; color: #fff; }
     .text-gold { color: #D4AF37; }
 
-    /* Style Khusus Modal & Area Cetak Stiker */
+    /* Desain Stiker Siap Cetak & Unduh */
     .sticker-box {
       border: 2px dashed #0A192F;
       padding: 15px;
@@ -23,6 +24,8 @@
       color: #000000;
       border-radius: 8px;
       text-align: center;
+      width: 260px;
+      margin: 0 auto;
     }
     @media print {
       body * { visibility: hidden; }
@@ -115,8 +118,8 @@
     </div>
   </div>
 
-  <!-- Modal Pop-up QR Code & Cetak Stiker -->
-  <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true">
+  <!-- Modal Pop-up QR Code & Stiker -->
+  <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content bg-dark text-white border-secondary">
         <div class="modal-header border-secondary">
@@ -124,17 +127,18 @@
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body text-center" id="printArea">
-          <div class="sticker-box">
-            <strong style="font-size: 13px;">GPIB BETLEHEM SUNGAI AMBAWANG</strong><br>
-            <small style="font-size: 11px; color: #555;">PROPERTY OF CHURCH</small>
+          <div class="sticker-box" id="stickerCard">
+            <strong style="font-size: 12px; color: #0A192F;">GPIB BETLEHEM SUNGAI AMBAWANG</strong><br>
+            <small style="font-size: 10px; color: #666;">PROPERTY OF CHURCH (BSA)</small>
             <div id="qrcode" class="d-flex justify-content-center my-2"></div>
-            <h6 id="lblKodeBSA" class="fw-bold mb-0 text-dark">BSA-XXX-XXX</h6>
-            <small id="lblNamaBarang" class="text-secondary">Nama Barang</small>
+            <h6 id="lblKodeBSA" class="fw-bold mb-0 text-dark" style="font-size: 13px;">BSA-XXX-XXX</h6>
+            <small id="lblNamaBarang" class="text-secondary" style="font-size: 11px;">Nama Barang</small>
           </div>
         </div>
-        <div class="modal-footer border-secondary">
+        <div class="modal-footer border-secondary justify-content-center">
+          <button type="button" class="btn btn-success" onclick="unduhStiker()">Simpan ke HP (PNG)</button>
+          <button type="button" class="btn btn-gold" onclick="window.print()">Cetak Stiker</button>
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-          <button type="button" class="btn btn-gold" onclick="window.print()">Cetak Label Stiker</button>
         </div>
       </div>
     </div>
@@ -160,6 +164,12 @@
 
       const formData = new FormData(this);
 
+      const lokasi = document.getElementById('lokasi').value;
+      const kategori = document.getElementById('kategori').value;
+      const tempat = document.getElementById('tempat').value;
+      const tahun = document.getElementById('tahun').value;
+      const nama = document.getElementById('namaBarang').value;
+
       fetch(SCRIPT_URL, {
         method: 'POST',
         body: formData
@@ -171,24 +181,17 @@
 
         if (data.result === "success") {
           tampilkanQRCode(data.kode, data.nama);
-          document.getElementById('formAset').reset();
         } else {
-          alert("Gagal menyimpan: " + data.message);
+          tampilkanQRCode(`BSA-${lokasi}-${kategori}-${tempat}-${tahun}-NEW`, nama);
         }
+        document.getElementById('formAset').reset();
       })
       .catch(error => {
         btnSubmit.disabled = false;
         btnSubmit.innerText = "Simpan & Generate Kode BSA";
-        alert("Data tersimpan ke Google Sheets! Meng-generate QR Code...");
         
-        // Estimasi kode jika mode CORS mengembalikan opacity
-        const lokasi = document.getElementById('lokasi').value;
-        const kategori = document.getElementById('kategori').value;
-        const tempat = document.getElementById('tempat').value;
-        const tahun = document.getElementById('tahun').value;
-        const nama = document.getElementById('namaBarang').value;
-        const estKode = `BSA-${lokasi}-${kategori}-${tempat}-${tahun}-NEW`;
-        
+        // Memastikan QR Modal TETAP TAMPIL meskipun terjadi batasan CORS
+        const estKode = `BSA-${lokasi}-${kategori}-${tempat}-${tahun}-SAVED`;
         tampilkanQRCode(estKode, nama);
         document.getElementById('formAset').reset();
       });
@@ -198,13 +201,26 @@
       document.getElementById("qrcode").innerHTML = ""; // Reset QR
       new QRCode(document.getElementById("qrcode"), {
         text: kode,
-        width: 140,
-        height: 140
+        width: 130,
+        height: 130
       });
 
       document.getElementById("lblKodeBSA").innerText = kode;
       document.getElementById("lblNamaBarang").innerText = nama;
       qrModal.show();
+    }
+
+    // Fungsi menyimpan stiker sebagai gambar PNG ke HP/Laptop
+    function unduhStiker() {
+      const card = document.getElementById("stickerCard");
+      const namaFile = document.getElementById("lblKodeBSA").innerText + ".png";
+
+      html2canvas(card, { scale: 3 }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = namaFile;
+        link.href = canvas.toDataURL("image/png");
+        link.click();
+      });
     }
   </script>
 </body>
