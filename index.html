@@ -3,241 +3,152 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SIMAG - GPIB Betlehem Sungai Ambawang</title>
-  <!-- Bootstrap 5, QR Code JS, & html2canvas -->
+  <title>Input Inventaris Aset Baru</title>
+  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
-    body { background-color: #0A192F; color: #E6F1FF; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    .card-custom { background-color: #112240; border: 1px solid #233554; border-radius: 12px; }
-    .navbar-custom { background-color: #020C1B; border-bottom: 2px solid #D4AF37; }
-    .btn-gold { background-color: #D4AF37; color: #0A192F; font-weight: bold; }
-    .btn-gold:hover { background-color: #B59228; color: #fff; }
-    .text-gold { color: #D4AF37; }
-
-    /* Desain Stiker Siap Cetak & Unduh */
-    .sticker-box {
-      border: 2px dashed #0A192F;
-      padding: 15px;
-      background-color: #ffffff;
-      color: #000000;
-      border-radius: 8px;
-      text-align: center;
-      width: 260px;
-      margin: 0 auto;
-    }
-    @media print {
-      body * { visibility: hidden; }
-      #printArea, #printArea * { visibility: visible; }
-      #printArea { position: absolute; left: 0; top: 0; width: 100%; }
-    }
+    body { background-color: #0d1117; color: #f0f6fc; padding: 20px; }
+    .card { background-color: #161b22; border-color: #30363d; color: #f0f6fc; }
+    .form-control, .form-select { background-color: #0d1117; color: #f0f6fc; border-color: #30363d; }
+    .form-control:focus, .form-select:focus { background-color: #161b22; color: #fff; }
+    .btn-gold { background-color: #8c6d1f; color: #fff; font-weight: bold; }
+    .btn-gold:hover { background-color: #a38025; color: #fff; }
   </style>
 </head>
 <body>
 
-  <!-- Header / Navbar -->
-  <nav class="navbar navbar-custom px-3 py-2">
-    <div class="container-fluid d-flex align-items-center">
-      <img src="logo_gpib.png" alt="GPIB Logo" width="45" class="me-3" onerror="this.style.display='none'">
-      <div>
-        <h6 class="m-0 fw-bold text-white">GPIB JEMAAT BETLEHEM SUNGAI AMBAWANG</h6>
-        <small class="text-gold">Sistem Informasi Manajemen Aset Gereja (BSA)</small>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Container Utama -->
-  <div class="container mt-4 mb-5">
-    <div class="card card-custom p-4">
-      <h5 class="text-gold mb-3">Input Inventaris Aset Baru</h5>
-      
-      <form id="formAset">
-        <div class="mb-3">
-          <label class="form-label">Nama Barang</label>
-          <input type="text" class="form-control bg-dark text-white border-secondary" id="namaBarang" placeholder="Contoh: Mic Wireless Aslley" required>
-        </div>
-
-        <div class="row g-2 mb-3">
-          <div class="col-6">
-            <label class="form-label">Lokasi Pos</label>
-            <select class="form-select bg-dark text-white border-secondary" id="lokasi" required>
-              <option value="IND">IND - Induk</option>
-              <option value="DAP">DAP - Dango Anugerah Penapat</option>
-              <option value="MIS">MIS - Menara Iman Siak</option>
-              <option value="PND">PND - Penabur Durian</option>
-              <option value="TJP">TJP - Tuah Jubata Sei. Pelaik</option>
-              <option value="SHB">SHB - Sahabat Berinang</option>
-              <option value="IMB">IMB - Imanuel Bengkarek</option>
-            </select>
-          </div>
-          <div class="col-6">
-            <label class="form-label">Kategori</label>
-            <select class="form-select bg-dark text-white border-secondary" id="kategori" required>
-              <option value="HBG">HBG - Harta Bergerak</option>
-              <option value="HTB">HTB - Harta Tidak Bergerak</option>
-              <option value="HKI">HKI - Tak Berwujud / HKI</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row g-2 mb-3">
-          <div class="col-6">
-            <label class="form-label">Ruangan/Tempat</label>
-            <select class="form-select bg-dark text-white border-secondary" id="tempat" required>
-              <option value="GRJ">GRJ - Gedung Gereja</option>
-              <option value="KST">KST - Konsistori</option>
-              <option value="PST">PST - Pastori</option>
-              <option value="GDL">GDL - Gedung Lainnya</option>
-              <option value="KNT">KNT - Kantor</option>
-            </select>
-          </div>
-          <div class="col-6">
-            <label class="form-label">Tahun Perolehan</label>
-            <input type="number" class="form-control bg-dark text-white border-secondary" id="tahun" value="2026" required>
-          </div>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Kondisi Barang</label>
-          <select class="form-select bg-dark text-white border-secondary" id="kondisi" required>
-            <option value="Baik">Baik (Berfungsi 100%)</option>
-            <option value="Perlu Perbaikan">Perlu Perbaikan / Servis</option>
-            <option value="Rusak Berat">Rusak Berat</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Upload Foto Barang (Max 50MB)</label>
-          <input type="file" class="form-control bg-dark text-white border-secondary" id="fotoBarang" accept="image/*" capture="environment" required>
-          <small class="text-muted">Bisa langsung ambil foto lewat kamera HP.</small>
-        </div>
-
-        <button type="submit" class="btn btn-gold w-100 py-2 mt-2" id="btnSubmit">Simpan & Generate Kode BSA</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal Pop-up QR Code & Stiker -->
-  <div class="modal fade" id="qrModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content bg-dark text-white border-secondary">
-        <div class="modal-header border-secondary">
-          <h5 class="modal-title text-gold">Label QR Code Aset Berhasil Dibuat</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body text-center" id="printArea">
-          <div class="sticker-box" id="stickerCard">
-            <strong style="font-size: 12px; color: #0A192F;">GPIB BETLEHEM SUNGAI AMBAWANG</strong><br>
-            <small style="font-size: 10px; color: #666;">PROPERTY OF CHURCH (BSA)</small>
-            <div id="qrcode" class="d-flex justify-content-center my-2"></div>
-            <h6 id="lblKodeBSA" class="fw-bold mb-0 text-dark" style="font-size: 13px;">BSA-XXX-XXX</h6>
-            <small id="lblNamaBarang" class="text-secondary" style="font-size: 11px;">Nama Barang</small>
-          </div>
-        </div>
-        <div class="modal-footer border-secondary justify-content-center">
-          <button type="button" class="btn btn-success" onclick="unduhStiker()">Simpan ke HP (PNG)</button>
-          <button type="button" class="btn btn-gold" onclick="window.print()">Cetak Stiker</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"></script>
+<div class="container my-4" style="max-width: 500px;">
+  <h4 class="text-center mb-4 text-warning">Input Inventaris Aset Baru</h4>
   
-  <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmVdh1pmSCw-MMkCwR44rQbE7FUMz_YuV2cNulIKe1aN7uTmUfwzGoO1hFHsEUnEcUVg/exec";
-    let qrModal;
+  <form id="formAset" class="card p-4 shadow">
+    <div class="mb-3">
+      <label class="form-label">Nama Barang</label>
+      <input type="text" id="namaBarang" class="form-control" placeholder="Contoh: Kursi" required>
+    </div>
 
-    document.addEventListener("DOMContentLoaded", function() {
-      qrModal = new bootstrap.Modal(document.getElementById('qrModal'));
-    });
+    <div class="mb-3">
+      <label class="form-label">Lokasi</label>
+      <input type="text" id="lokasi" class="form-control" placeholder="Contoh: IND" value="IND" required>
+    </div>
 
-    document.getElementById('formAset').addEventListener('submit', function(e) {
-      e.preventDefault();
+    <div class="mb-3">
+      <label class="form-label">Kategori</label>
+      <input type="text" id="kategori" class="form-control" placeholder="Contoh: HBG" value="HBG" required>
+    </div>
 
-      const btnSubmit = document.getElementById('btnSubmit');
-      btnSubmit.disabled = true;
-      btnSubmit.innerText = "Sedang Menyimpan Data & Upload Foto...";
+    <div class="mb-3">
+      <label class="form-label">Tempat</label>
+      <input type="text" id="tempat" class="form-control" placeholder="Contoh: GRJ" value="GRJ" required>
+    </div>
 
-      const fileInput = document.getElementById('fotoBarang');
-      const file = fileInput.files[0];
+    <div class="mb-3">
+      <label class="form-label">Tahun</label>
+      <input type="number" id="tahun" class="form-control" value="2026" required>
+    </div>
 
-      if (!file) {
-        alert("Harap pilih foto barang terlebih dahulu!");
-        btnSubmit.disabled = false;
-        btnSubmit.innerText = "Simpan & Generate Kode BSA";
-        return;
+    <div class="mb-3">
+      <label class="form-label">Kondisi</label>
+      <select id="kondisi" class="form-select">
+        <option value="Baik" selected>Baik</option>
+        <option value="Perlu Perbaikan">Perlu Perbaikan</option>
+        <option value="Rusak">Rusak</option>
+      </select>
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Foto Aset</label>
+      <input type="file" id="fotoFile" class="form-control" accept="image/*">
+    </div>
+
+    <button type="submit" id="btnSubmit" class="btn btn-gold w-100 py-2">
+      Simpan Data Aset
+    </button>
+  </form>
+</div>
+
+<!-- Modal Loading Indikator (Elemen Modal Bootstrap) -->
+<div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content bg-dark text-light border-secondary">
+      <div class="modal-body text-center py-4">
+        <div class="spinner-border text-warning mb-3" role="status"></div>
+        <p class="mb-0">Sedang Menyimpan Data & Upload Foto...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+  // MASUKKAN URL WEB APP GOOGLE APPS SCRIPT ANDA DI SINI
+  const SCRIPT_URL = "GANTI_DENGAN_URL_WEB_APP_GOOGLE_APPS_SCRIPT_ANDA";
+
+  const formAset = document.getElementById('formAset');
+  const btnSubmit = document.getElementById('btnSubmit');
+  
+  // Inisialisasi Modal Bootstrap secara aman
+  const loadingModalEl = document.getElementById('loadingModal');
+  const loadingModal = new bootstrap.Modal(loadingModalEl);
+
+  formAset.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // 1. Ambil nilai dari form
+    const namaBarang = document.getElementById('namaBarang').value.trim();
+    const lokasi     = document.getElementById('lokasi').value.trim();
+    const kategori   = document.getElementById('kategori').value.trim();
+    const tempat     = document.getElementById('tempat').value.trim();
+    const tahun      = document.getElementById('tahun').value.trim();
+    const kondisi    = document.getElementById('kondisi').value;
+
+    // Validasi Sederhana
+    if (!namaBarang) {
+      alert("Nama barang wajib diisi!");
+      return;
+    }
+
+    // 2. Tampilkan Loading Modal
+    loadingModal.show();
+    btnSubmit.disabled = true;
+
+    // 3. Susun data JSON
+    const payload = {
+      namaBarang: namaBarang,
+      lokasi: lokasi || "IND",
+      kategori: kategori || "HBG",
+      tempat: tempat || "GRJ",
+      tahun: tahun || "2026",
+      kondisi: kondisi,
+      fotoUrl: "" // Tambahkan logic upload Drive di sini jika ada
+    };
+
+    // 4. Kirim data ke Google Apps Script
+    fetch(SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+    .then(response => response.json())
+    .then(res => {
+      // Sembunyikan Modal Loading
+      loadingModal.hide();
+      btnSubmit.disabled = false;
+
+      if (res.status === 'success') {
+        alert("Berhasil! " + res.message + "\nKode Aset: " + res.kodeBSA);
+        formAset.reset();
+      } else {
+        alert("Gagal menyimpan data: " + res.message);
       }
-
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const base64Data = evt.target.result.split(',')[1];
-        
-        const payload = {
-          namaBarang: document.getElementById('namaBarang').value,
-          lokasi: document.getElementById('lokasi').value,
-          kategori: document.getElementById('kategori').value,
-          tempat: document.getElementById('tempat').value,
-          tahun: document.getElementById('tahun').value,
-          kondisi: document.getElementById('kondisi').value,
-          fileName: file.name,
-          fileType: file.type,
-          fileData: base64Data
-        };
-
-        fetch(SCRIPT_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        })
-        .then(() => {
-          btnSubmit.disabled = false;
-          btnSubmit.innerText = "Simpan & Generate Kode BSA";
-
-          // Buat estimasi kode BSA sesuai urutan lokasi di Sheets
-          const estKode = `BSA-${payload.lokasi}-${payload.kategori}-${payload.tempat}-${payload.tahun}-NEW`;
-          
-          tampilkanQRCode(estKode, payload.namaBarang);
-          document.getElementById('formAset').reset();
-        })
-        .catch(error => {
-          btnSubmit.disabled = false;
-          btnSubmit.innerText = "Simpan & Generate Kode BSA";
-          alert("Gagal mengirim data: " + error);
-        });
-      };
-
-      reader.readAsDataURL(file);
+    })
+    .catch(err => {
+      // Sembunyikan Modal Loading saat Terjadi Error
+      loadingModal.hide();
+      btnSubmit.disabled = false;
+      alert("Gagal mengirim data: " + err.message);
     });
-
-    function tampilkanQRCode(kode, nama) {
-      document.getElementById("qrcode").innerHTML = ""; // Reset QR
-      new QRCode(document.getElementById("qrcode"), {
-        text: kode,
-        width: 130,
-        height: 130
-      });
-
-      document.getElementById("lblKodeBSA").innerText = kode;
-      document.getElementById("lblNamaBarang").innerText = nama;
-      qrModal.show();
-    }
-
-    function unduhStiker() {
-      const card = document.getElementById("stickerCard");
-      const namaFile = document.getElementById("lblKodeBSA").innerText + ".png";
-
-      html2canvas(card, { scale: 3 }).then(canvas => {
-        const link = document.createElement('a');
-        link.download = namaFile;
-        link.href = canvas.toDataURL("image/png");
-        link.click();
-      });
-    }
-  </script>
+  });
+</script>
 </body>
 </html>
